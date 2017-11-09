@@ -29,6 +29,11 @@ static int s_getattr(const char *path, struct stat *st)
 	return 0;
 }
 
+int s_write(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fi)
+{
+	return pwrite(fi->fh, buf, size, offset);
+}
+
 static int s_readdir( const char *path, void *buffer, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info  *fi )
 {
 	filler( buffer, ".", NULL, 0 );
@@ -40,6 +45,7 @@ static int s_readdir( const char *path, void *buffer, fuse_fill_dir_t filler, of
 static struct fuse_operations operations = {
 	.getattr = s_getattr,
 	.readdir = s_readdir,
+	.write = s_write,
 };
 
 int main( int argc, char *argv[] )
