@@ -5,12 +5,13 @@ import sys
 import errno
 import pwd
 
+
 from stat import S_IFDIR, S_IFLNK, S_IFREG, S_ISREG
 from github import Github
-from fuse import FUSE, FuseOSError, Operations
+from fuse import FUSE, FuseOSError, Operations, LoggingMixIn
 from time import time, mktime, sleep
 
-class lfs(Operations):
+class lfs(Operations, LoggingMixIn):
 	def __init__(self, root):
 		self.root = root
 		#		self.user = Github(input("Username: "), input("Password: "))
@@ -20,51 +21,68 @@ class lfs(Operations):
 			self.repo_list.append(repo.name)
 
 	def getattr(self, path, fh=None):
-		print('[getattr]')
+		#print('[getattr]')
 		full_path = self.root + path
 		#print(path)
 		#print('[getattr]')
-		if path == '/repos':
+		if path == '/repos' or path == '/':
 			st = os.lstat(full_path)
 			return dict((key, getattr(st, key)) for key in ('st_atime', 'st_ctime',
 				'st_gid', 'st_mode', 'st_mtime', 'st_nlink', 'st_size', 'st_uid'))
 		elif not('.' in path):
+			print('in there')
 			properties = dict(
 					st_mode=S_IFDIR | 755,
-					st_size=0,
+					st_size=4096,
 					st_ctime=int(time()),
 					st_mtime=int(time()),
 					st_atime=int(time()),
 					st_uid=pwd.getpwuid(os.getuid()).pw_uid,
 					st_gid=pwd.getpwuid(os.getuid()).pw_gid,
-					st_nlink=2
+					st_nlink=0
 					)
 			return properties
 		else:
+			print('in here')
 			properties = dict(
 					st_mode=S_IFREG | 755,
-					st_size=0,
 					st_ctime=int(time()),
 					st_mtime=int(time()),
 					st_atime=int(time()),
 					st_uid=pwd.getpwuid(os.getuid()).pw_uid,
 					st_gid=pwd.getpwuid(os.getuid()).pw_gid,
-					st_nlink=2
+					st_nlink=0,
 					)
 			return properties
+	
+#	def open(self, path, flags):
+#		print('[open]')
+#		return 0
 
-	def read(self, path, size, offset):
-		print('***[read]')
-		path = path.split('/')
-		repo_name = path[-1]
-		file_name = path[-2]
+	def read(self, path, size, offset, fh=None):
 		file_content = ''
-		print(repo_name, file_name)
-		for item in self.user.get_user().get_repos():
-			if item.name == repo_name:
-				files = item.get_dir_contents('/')
-				break
-		return file_content
+		path_ele = path.split('/')
+		print('***[read]')
+		print(path)
+		if path.endswith('/') or path[1] == '.':
+			print('ok')
+			return file_content
+		else:
+			path = path.split('/')
+			repo_name = path[-2]
+			file_name = path[-1]
+			print(repo_name, file_name)
+			for item in self.user.get_user().get_repos():
+				if item.name == repo_name:
+					files = item.get_dir_contents('/')
+					for file_ in files:
+						if file_name == file_.name:
+							file_content = item.get_file_contents(file_name).decoded_content
+							print(len(file_content.decode('utf-8')))
+							print(type(file_content.decode('utf-8')))
+							return file_content
+
+
 
 
 
