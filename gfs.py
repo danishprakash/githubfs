@@ -3,17 +3,18 @@
 import os
 import sys
 import errno
+import getpass
 import pwd
 
 from stat import S_IFDIR, S_IFLNK, S_IFREG, S_ISREG
 from github import Github
-from fuse import FUSE, FuseOSError, Operations, LoggingMixIn
+from fuse import FUSE, FuseOSError, Operations
 from time import time, mktime, sleep
 
-class lfs(Operations):
+class gfs(Operations):
 	def __init__(self, root):
 		self.root = root
-		#		self.user = Github(input("Username: "), input("Password: "))
+		#self.user = Github(input("Username: "), getpass.getpass("Password: "))
 		self.user = Github('prakashdanish', 'L34rnJ4v4')
 		self.repo_list = []
 		for repo in self.user.get_user().get_repos():
@@ -76,10 +77,6 @@ class lfs(Operations):
 							return file_content
 
 
-
-
-
-
 	def readdir(self, path, fh):
 		full_path = self.root + path
 		repo_list = ['.', '..']
@@ -102,7 +99,7 @@ class lfs(Operations):
 			return repo_list
 
 def main(mountpoint, root):
-	FUSE(lfs(root), mountpoint, nothreads=True, foreground=True)
+	FUSE(gfs(root), mountpoint, nothreads=True, foreground=True)
 
 if __name__ == '__main__':
 	main(sys.argv[2], sys.argv[1])
