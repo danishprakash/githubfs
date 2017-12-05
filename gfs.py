@@ -28,9 +28,9 @@ class gfs(Operations):
 		properties = dict(
 				st_mode = S_IFDIR | 755,
 				st_nlink = 2,
-				st_ctime=int(time()),
-				st_mtime=int(time()),
-				st_atime=int(time()),
+				st_ctime=0,
+				st_mtime=0,
+				st_atime=0,
 				st_uid=pwd.getpwuid(os.getuid()).pw_uid,
 				st_gid=pwd.getpwuid(os.getuid()).pw_gid,
 				)
@@ -41,7 +41,7 @@ class gfs(Operations):
 			pass
 		elif path == '/repos' or path_ele[-1] in self.repo_list:
 			pass
-		elif path_ele[-1] in self.repo_list:
+		else:
 			properties = dict(
 					st_mode=S_IFREG | 444,
 					st_size=4096,
@@ -82,7 +82,9 @@ class gfs(Operations):
 		repo_list = ['.', '..']
 		path_ele = path.split('/')
 		print('[readdir]')
-		if path == '/' or path_ele[-1].startswith('.'):
+		if path.startswith('.'):
+			pass
+		elif path == '/':
 			 return ['.', '..', 'repos']
 		elif path == '/repos':
 			return repo_list + self.repo_list
