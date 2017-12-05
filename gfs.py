@@ -13,18 +13,19 @@ from time import time, mktime, sleep
 
 class gfs(Operations):
 	def __init__(self, root):
+		print('[init]: ', root)
 		self.root = root
 		#self.user = Github(input("Username: "), getpass.getpass("Password: "))
 		self.user = Github('prakashdanish', 'L34rnJ4v4')
 		self.repo_list = []
+		print('Fetching repositories...', end='')
 		for repo in self.user.get_user().get_repos():
 			self.repo_list.append(repo.name)
+		print('Done')
 
 	def getattr(self, path, fh=None):
-		#print('[getattr]')
+		print('[getattr]: ', path)
 		full_path = self.root + path
-		#print(path)
-		#print('[getattr]')
 		properties = dict(
 				st_mode = S_IFDIR | 755,
 				st_nlink = 2,
@@ -34,9 +35,9 @@ class gfs(Operations):
 				st_uid=pwd.getpwuid(os.getuid()).pw_uid,
 				st_gid=pwd.getpwuid(os.getuid()).pw_gid,
 				)
-		print(path)
+		#		print(path)
 		path_ele = path.split('/')
-		print(path_ele[-1])
+		#print(path_ele[-1])
 		if path == '/' or path_ele[-1].startswith('.'):
 			pass
 		elif path == '/repos' or path_ele[-1] in self.repo_list:
@@ -53,35 +54,32 @@ class gfs(Operations):
 	#	print('[open]')
 	#	return 0
 
-	def iread(self, path, size, offset, fh=None):
+	def read(self, path, size, offset, fh=None):
+		print('[read]: ', path)
 		file_content = ''
 		path_ele = path.split('/')
-		print('***[read]')
-		print(path)
-		if path.endswith('/') or path[1] == '.':
-			print('ok')
-			return file_content
+		if path == '/' or path == '/repos':
+			pass
 		else:
 			path = path.split('/')
 			repo_name = path[-2]
 			file_name = path[-1]
-			print(repo_name, file_name)
+#			print(repo_name, file_name)
 			for item in self.user.get_user().get_repos():
 				if item.name == repo_name:
 					files = item.get_dir_contents('/')
 					for file_ in files:
 						if file_name == file_.name:
 							file_content = item.get_file_contents(file_name).decoded_content
-							print(len(file_content.decode('utf-8')))
-							print(type(file_content.decode('utf-8')))
 							return file_content
 
 
 	def readdir(self, path, fh):
+		print('[readdir]: ', path)
 		full_path = self.root + path
 		repo_list = ['.', '..']
 		path_ele = path.split('/')
-		print('[readdir]')
+		#print('[readdir]')
 		if path.startswith('.'):
 			pass
 		elif path == '/':
@@ -90,14 +88,14 @@ class gfs(Operations):
 			return repo_list + self.repo_list
 		elif path_ele[-1] in self.repo_list:
 			repo_name = path_ele[-1]
-			print(repo_name)
+			#print(repo_name)
 			for item in self.user.get_user().get_repos():
 				if item.name == repo_name:
 					files = item.get_dir_contents('/')
 					break
 			for item in files:
 				repo_list.append(item.name)
-			print(repo_list)
+			#print(repo_list)
 			return repo_list
 
 def main(mountpoint, root):
