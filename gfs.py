@@ -16,12 +16,25 @@ class gfs(Operations):
 		print('[init]: ', root)
 		self.root = root
 		#self.user = Github(input("Username: "), getpass.getpass("Password: "))
+		print('Establishing connection....', end='')
 		self.user = Github('prakashdanish', 'L34rnJ4v4')
+		print('Done')
 		self.repo_list = []
 		print('Fetching repositories...', end='')
 		for repo in self.user.get_user().get_repos():
 			self.repo_list.append(repo.name)
 		print('Done')
+
+	def get_file_contents(self, repo_name, file_name):
+		for repo in self.user.get_user().get_repos():
+			if repo.name == repo_name:
+				files = repo.get_dir_contents('/')
+				for file_ in files:
+					if file_name == file_.name:
+						file_content = repo.get_file_contents(file_name).decoded_content
+						print(file_content)
+						return file_content
+
 
 	def getattr(self, path, fh=None):
 		print('[getattr]: ', path)
@@ -43,8 +56,12 @@ class gfs(Operations):
 		elif path == '/repos' or path_ele[-1] in self.repo_list:
 			pass
 		else:
+			#			path_ele = path.split('/')
+			#			file_name = path_ele[-1]
+			#			repo_name = path_ele[-2]
+			#			file_size = len(self.get_file_contents(repo_name, file_name))
 			properties = dict(
-					st_mode=S_IFREG | 444,
+					st_mode=S_IFREG | 644,
 					st_size=4096,
 					st_nlink=0,
 					)
@@ -54,7 +71,7 @@ class gfs(Operations):
 	#	print('[open]')
 	#	return 0
 
-	def read(self, path, size, offset, fh=None):
+	def iread(self, path, size, offset, fh=None):
 		print('[read]: ', path)
 		file_content = ''
 		path_ele = path.split('/')
@@ -64,14 +81,8 @@ class gfs(Operations):
 			path = path.split('/')
 			repo_name = path[-2]
 			file_name = path[-1]
-#			print(repo_name, file_name)
-			for item in self.user.get_user().get_repos():
-				if item.name == repo_name:
-					files = item.get_dir_contents('/')
-					for file_ in files:
-						if file_name == file_.name:
-							file_content = item.get_file_contents(file_name).decoded_content
-							return file_content
+#			print(repo_name, file_name)A
+			return self.get_file_contents(repo_name, file_name)
 
 
 	def readdir(self, path, fh):
