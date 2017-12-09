@@ -25,7 +25,7 @@ class gfs(Operations):
             self.repo_list.append(repo.name)
         print('Done')
 
-    def get_file_contents(self, repo_name, file_name):
+    def get_file_contents(self, repo_name, file_name, flag):
         for repo in self.user.get_user().get_repos():
             if repo.name == repo_name:
                 files = repo.get_dir_contents('/')
@@ -33,9 +33,24 @@ class gfs(Operations):
                     if file_name == file_.name:
                         file_content = repo.get_file_contents(file_name).decoded_content
                         print(file_content)
-                        return file_content
+                        if flag == 0:
+                            return file_content.decode('utf-8')
+                        else:
+                            return file_content
 
-        # def open(self, path, flags):
+    def open(self, path, flags):
+        if path == '/' or path == '/repos':
+            pass
+        else:
+            path_ele = path.split('/')
+            file_name = path_ele[-1]
+            repo_name = path_ele[-2]
+            new_file = open(file_name, "w")
+            data = self.get_file_contents(repo_name, file_name, 0)
+            new_file.write(data)
+            new_file.close
+            print(len(data))
+            return len(data)
 
             
 
@@ -66,7 +81,7 @@ class gfs(Operations):
             # file_size = len(self.get_file_contents(repo_name, file_name))
             properties = dict(
                     st_mode=S_IFREG | 644,
-                    st_size=4096,
+                    st_size=12288,
                     st_nlink=0,
                     )
         return properties
@@ -75,7 +90,7 @@ class gfs(Operations):
     #       print('[open]')
     #       return 0
 
-    def iread(self, path, size, offset, fh=None):
+    def read(self, path, size, offset, fh=None):
         print('[read]: ', path)
         file_content = ''
         path_ele = path.split('/')
@@ -85,8 +100,8 @@ class gfs(Operations):
             path = path.split('/')
             repo_name = path[-2]
             file_name = path[-1]
-            # print(repo_name, file_name)A
-            return self.get_file_contents(repo_name, file_name)
+            print(repo_name, file_name)
+            return self.get_file_contents(repo_name, file_name, 1)
 
 
     def readdir(self, path, fh):
