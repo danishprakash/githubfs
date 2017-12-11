@@ -17,26 +17,39 @@ class gfs(Operations):
         self.root = root
         # self.user = Github(input("Username: "), getpass.getpass("Password: "))
         print('Establishing connection....', end='')
-        self.user = Github('prakashdanish', 'L34rnJ4v4')
+        self.user = Github('bl4ckw4sp', 'danman1996')
         print('Done')
         self.repo_list = []
         print('Fetching repositories...', end='')
+        self.file_content_decoded = dict()
+        self.file_content_bytes = dict()
         for repo in self.user.get_user().get_repos():
             self.repo_list.append(repo.name)
+            files = repo.get_dir_contents('/')
+            for file_ in files:
+                if file_.name == repo.name:
+                    continue
+                elif '.' in file_.name and not(file_.name.startswith('.')):
+                    print(repo.name, file_.name)
+                    file_name = file_.name
+                    file_content = repo.get_file_contents(file_name)
+                    # print(file_content.decoded_content)
+                    self.file_content_bytes[file_.name] = file_content.decoded_content
+                    self.file_content_decoded[file_.name] = file_content.decoded_content.decode('utf-8')
         print('Done')
 
-    def get_file_contents(self, repo_name, file_name, flag):
-        for repo in self.user.get_user().get_repos():
-            if repo.name == repo_name:
-                files = repo.get_dir_contents('/')
-                for file_ in files:
-                    if file_name == file_.name:
-                        file_content = repo.get_file_contents(file_name).decoded_content
-                        print(file_content)
-                        if flag == 0:
-                            return file_content.decode('utf-8')
-                        else:
-                            return file_content
+    # def get_file_contents(self, repo_name, file_name, flag):
+    #     for repo in self.user.get_user().get_repos():
+    #         if repo.name == repo_name:
+    #             files = repo.get_dir_contents('/')
+    #             for file_ in files:
+    #                 if file_name == file_.name:
+    #                     file_content = repo.get_file_contents(file_name).decoded_content
+    #                     print(file_content)
+    #                     if flag == 0:
+    #                         return file_content.decode('utf-8')
+    #                     else:
+    #                         return file_content
 
     def open(self, path, flags):
         if path == '/' or path == '/repos':
@@ -46,7 +59,7 @@ class gfs(Operations):
             file_name = path_ele[-1]
             repo_name = path_ele[-2]
             new_file = open(file_name, "w")
-            data = self.get_file_contents(repo_name, file_name, 0)
+            data = self.file_content_decoded[file_name]
             new_file.write(data)
             new_file.close
             print(len(data))
@@ -79,13 +92,16 @@ class gfs(Operations):
             file_name = path_ele[-1]
             repo_name = path_ele[-2]
             file_size = 4096
-            if '.' in file_name:
-                file_size = len(self.get_file_contents(repo_name, file_name, 0))
-            properties = dict(
-                    st_mode=S_IFREG | 644,
-                    st_size=file_size,
-                    st_nlink=0,
-                    )
+            if file_name not in self.file_content_decoded.keys():
+                pass
+            else:
+                if '.' in file_name and not(file_name.startswith('.')):
+                    file_size = len(self.file_content_decoded[file_name])
+                properties = dict(
+                        st_mode=S_IFREG | 644,
+                        st_size=file_size,
+                        st_nlink=1,
+                        )
         return properties
 
     # def open(self, path, flags):
@@ -103,7 +119,7 @@ class gfs(Operations):
             repo_name = path[-2]
             file_name = path[-1]
             print(repo_name, file_name)
-            return self.get_file_contents(repo_name, file_name, 1)
+            return self.file_content_bytes[file_name]
 
 
     def readdir(self, path, fh):
