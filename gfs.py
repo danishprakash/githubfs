@@ -75,13 +75,15 @@ class gfs(Operations):
         elif path == '/repos' or path_ele[-1] in self.repo_list:
             pass
         else:
-            # path_ele = path.split('/')
-            # file_name = path_ele[-1]
-            # repo_name = path_ele[-2]
-            # file_size = len(self.get_file_contents(repo_name, file_name))
+            path_ele = path.split('/')
+            file_name = path_ele[-1]
+            repo_name = path_ele[-2]
+            file_size = 4096
+            if '.' in file_name:
+                file_size = len(self.get_file_contents(repo_name, file_name, 0))
             properties = dict(
                     st_mode=S_IFREG | 644,
-                    st_size=12288,
+                    st_size=file_size,
                     st_nlink=0,
                     )
         return properties
