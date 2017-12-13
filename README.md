@@ -6,5 +6,6 @@ FUSE Filesystem written for Github.
 ## To-Do
 - [x] List repositories as dirs
 - [x] List repository contents as dir contents
-- [ ] Read file contents from a file in a repository
+- [x] Read file contents from a file in a repository
 - [ ] Edit and commit changes from the filesystem
+- [ ] Multiple account support
