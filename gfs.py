@@ -15,12 +15,10 @@ class gfs(Operations):
     def __init__(self, root):
         print('[init]: ', root)
         self.root = root
-        # self.user = Github(input("Username: "), getpass.getpass("Password: "))
-        print('Establishing connection....', end='')
-        self.user = Github('bl4ckw4sp', 'danman1996')
-        print('Done')
+        self.user = Github(input("Username: "), getpass.getpass("Password: "))
+        print('[init]: Establishing connection....')
         self.repo_list = []
-        print('Fetching repositories...', end='')
+        print('[init]: Fetching repositories...')
         self.file_content_decoded = dict()
         self.file_content_bytes = dict()
         for repo in self.user.get_user().get_repos():
@@ -30,7 +28,7 @@ class gfs(Operations):
                 if file_.name == repo.name:
                     continue
                 elif '.' in file_.name and not(file_.name.startswith('.')):
-                    print(repo.name, file_.name)
+                    # print(repo.name, file_.name)
                     file_name = file_.name
                     file_content = repo.get_file_contents(file_name)
                     # print(file_content.decoded_content)
@@ -62,7 +60,7 @@ class gfs(Operations):
             data = self.file_content_decoded[file_name]
             new_file.write(data)
             new_file.close
-            print(len(data))
+            # print(len(data))
             return len(data)
 
             
@@ -118,7 +116,7 @@ class gfs(Operations):
             path = path.split('/')
             repo_name = path[-2]
             file_name = path[-1]
-            print(repo_name, file_name)
+            # print(repo_name, file_name)
             return self.file_content_bytes[file_name]
 
 
@@ -127,7 +125,6 @@ class gfs(Operations):
         full_path = self.root + path
         repo_list = ['.', '..']
         path_ele = path.split('/')
-        # print('[readdir]')
         if path.startswith('.'):
             pass
         elif path == '/':
