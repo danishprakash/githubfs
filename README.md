@@ -1,7 +1,8 @@
 # Github File System [GithubFS] 
-FUSE Filesystem written for Github.
+A read-only FUSE file system for Github written in Python.
 
--- wip --
+## Dependencies
+- FUSE
 
 ## To-Do
 - [x] List repositories as dirs
@@ -9,3 +10,4 @@ FUSE Filesystem written for Github.
 - [x] Read file contents from a file in a repository
 - [ ] Edit and commit changes from the filesystem
 - [ ] Multiple account support
+
