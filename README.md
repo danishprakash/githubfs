@@ -7,6 +7,11 @@ A read-only virtual file system for Github using FUSE written in Python.
 - Read files in a repo as files in a directory
 - Copy files from a repo
 
+## Installation
+```bash
+$ python3 gfs.py [root] [mount-point]
+```
+
 ## Dependencies
 - FUSE
 
