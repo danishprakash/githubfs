@@ -28,10 +28,8 @@ class gfs(Operations):
                 if file_.name == repo.name:
                     continue
                 elif '.' in file_.name and not(file_.name.startswith('.')):
-                    # print(repo.name, file_.name)
                     file_name = file_.name
                     file_content = repo.get_file_contents(file_name)
-                    # print(file_content.decoded_content)
                     self.file_content_bytes[file_.name] = file_content.decoded_content
                     self.file_content_decoded[file_.name] = file_content.decoded_content.decode('utf-8')
         print('Done')
