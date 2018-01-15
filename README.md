@@ -13,7 +13,8 @@ $ python3 gfs.py [root] [mount-point]
 ```
 
 ## Dependencies
-- FUSE
+- [fusepy](https://github.com/terencehonles/fusepy)
+- [PyGithub](https://github.com/PyGithub/PyGithub)
 
 ## To-Do
 - [x] List repositories as dirs
@@ -21,4 +22,4 @@ $ python3 gfs.py [root] [mount-point]
 - [x] Read file contents from a file in a repository
 - [ ] Edit and commit changes from the filesystem
 - [ ] Multiple account support
-
+- [ ] Config file for storing & accessing credentials
